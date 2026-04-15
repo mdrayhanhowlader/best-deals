@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Best Deals</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .admin-wrapper {
+            min-height: 100vh;
+        }
+        
+        .admin-wrapper.locked {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            backdrop-filter: blur(10px);
+        }
+        
+        .login-card {
+            background: white;
+            padding: 50px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 400px;
+            animation: slideIn 0.6s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .login-card h2 {
+            color: #667eea;
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 1.8rem;
+        }
+        
+        .login-card .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .login-card input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .login-card input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .login-card .btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .login-card .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .login-error {
+            background: #fee;
+            color: #c33;
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            display: none;
+            animation: shake 0.5s ease-in-out;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+        
+        .admin-panel {
+            display: none;
+        }
+        
+        .admin-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 0;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .admin-header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .admin-header h1 {
+            margin: 0;
+            font-size: 2rem;
+        }
+        
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .logout-btn:hover {
+            background: white;
+            color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-wrapper locked" id="adminWrapper">
+        <!-- Login Form -->
+        <div class="login-card" id="loginCard">
+            <h2>🔐 Admin Access</h2>
+            <div class="login-error" id="loginError">Wrong password! Try again.</div>
+            <form onsubmit="checkPassword(event)">
+                <div class="form-group">
+                    <input type="password" id="passwordInput" placeholder="Enter Admin Password" required>
+                </div>
+                <button type="submit" class="btn">Login</button>
+            </form>
+            <p style="text-align: center; margin-top: 20px; color: #999; font-size: 0.9rem;">
+                <a href="index.html" style="color: #667eea; text-decoration: none;">← Back to Store</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Admin Panel (hidden until logged in) -->
+    <div class="admin-panel" id="adminPanel">
+        <header class="admin-header">
+            <div class="container">
+                <div class="admin-header-content">
+                    <div>
+                        <h1>⚙️ Admin Dashboard</h1>
+                        <p style="margin: 5px 0; opacity: 0.9;">Manage your products and analytics</p>
+                    </div>
+                    <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+                </div>
+            </div>
+        </header>
+
+        <div class="container">
+            <!-- Add Product Section -->
+            <section class="add-product-section">
+                <h2>Add New Product</h2>
+                <form id="productForm" class="product-form">
+                    <div class="form-group">
+                        <label for="productName">Product Name</label>
+                        <input type="text" id="productName" placeholder="e.g., Wireless Headphones" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="productPrice">Price (USD $)</label>
+                            <input type="number" id="productPrice" placeholder="99" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="productLink">Amazon Affiliate Link</label>
+                            <input type="url" id="productLink" placeholder="https://amazon.com/..." required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="productCategory">Category</label>
+                            <select id="productCategory">
+                                <option value="Electronics">🔌 Electronics</option>
+                                <option value="Fashion">👕 Fashion</option>
+                                <option value="Home">🏠 Home & Kitchen</option>
+                                <option value="Books">📚 Books</option>
+                                <option value="Sports">⚽ Sports</option>
+                                <option value="Other">📦 Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="productImage">Image URL</label>
+                            <input type="url" id="productImage" placeholder="https://example.com/image.jpg">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="productDesc">Description</label>
+                        <textarea id="productDesc" placeholder="Short description..." rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">✅ Add Product</button>
+                </form>
+            </section>
+
+            <!-- Statistics -->
+            <section class="stats-section" style="margin: 40px 0;">
+                <h2>Quick Stats</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="adminTotalProducts">0</div>
+                        <div class="stat-label">Total Products</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="adminTotalClicks">0</div>
+                        <div class="stat-label">Total Clicks</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="adminClickToday">0</div>
+                        <div class="stat-label">Today's Clicks</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="adminTopProduct">-</div>
+                        <div class="stat-label">Top Product</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- All Products List -->
+            <section class="analytics-section" style="margin: 40px 0; margin-bottom: 60px;">
+                <h2>All Products</h2>
+                <div id="adminProductsList" class="admin-products-list"></div>
+            </section>
+
+            <!-- Analytics Details -->
+            <section class="analytics-section" style="margin: 40px 0; margin-bottom: 60px;">
+                <h2>Analytics & Actions</h2>
+                <div class="analytics-grid">
+                    <div class="analytics-card">
+                        <h4>Most Active Category</h4>
+                        <p id="adminActiveCategory">No clicks yet</p>
+                    </div>
+                    <div class="analytics-card">
+                        <h4>Last Click</h4>
+                        <p id="adminLastClick">Waiting for clicks...</p>
+                    </div>
+                    <div class="analytics-card">
+                        <h4>Data Management</h4>
+                        <button class="btn btn-danger" onclick="exportData()">📥 Export Data</button>
+                        <button class="btn btn-danger" onclick="clearAllAnalytics()" style="margin-top: 10px; background: #ff6b6b;">🗑️ Clear Analytics</button>
+                    </div>
+                    <div class="analytics-card">
+                        <h4>Quick Actions</h4>
+                        <button class="btn btn-primary" onclick="addSampleProducts()" style="width: 100%; margin-bottom: 10px;">📦 Add Sample Products</button>
+                        <a href="index.html" class="btn btn-secondary" style="width: 100%; display: block; text-align: center; margin-bottom: 10px;">👁️ View Store</a>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <style>
+        .admin-products-list {
+            display: grid;
+            gap: 15px;
+        }
+        
+        .admin-product-item {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 5px solid #667eea;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            animation: fadeIn 0.5s ease-out;
+            flex-wrap: wrap;
+        }
+        
+        .admin-product-info {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .admin-product-info h4 {
+            margin: 0 0 8px 0;
+            color: #333;
+        }
+        
+        .admin-product-info p {
+            margin: 5px 0;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .admin-product-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .admin-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+        
+        .admin-btn-delete {
+            background: #ff6b6b;
+            color: white;
+        }
+        
+        .admin-btn-delete:hover {
+            background: #ff5252;
+        }
+        
+        .btn-secondary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #5568d3;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+
+    <script src="admin.js"></script>
+</body>
+</html>

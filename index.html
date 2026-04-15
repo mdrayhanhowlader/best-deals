@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:title" content="Best Amazon Products - Limited Offers">
+    <meta property="og:description" content="Discover amazing products with great prices. Direct links to Amazon.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://via.placeholder.com/1200x630?text=Best+Amazon+Deals">
+    <meta name="description" content="Best Amazon products at great prices. Check out our curated collection.">
+    <title>Best Amazon Deals - Amazing Offers</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <h1 class="logo">🛍️ Best Deals</h1>
+                <p class="tagline">Amazing Amazon Products with Best Prices</p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Banner -->
+    <section class="hero-banner">
+        <div class="container">
+            <div class="hero-content">
+                <h2>⏰ Limited Time Offers</h2>
+                <p>Check out our handpicked collection of amazing products at unbeatable prices</p>
+                <div class="hero-stats">
+                    <div class="hero-stat">
+                        <span class="hero-number" id="heroProducts">0</span>
+                        <span class="hero-label">Products</span>
+                    </div>
+                    <div class="hero-stat">
+                        <span class="hero-number" id="heroClicks">0</span>
+                        <span class="hero-label">Trusted Clicks</span>
+                    </div>
+                    <div class="hero-stat">
+                        <span class="hero-number" id="heroToday">0</span>
+                        <span class="hero-label">Today's Sales</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Filter Section -->
+    <section class="filter-section">
+        <div class="container">
+            <h3>Browse by Category</h3>
+            <div class="filters">
+                <button class="filter-btn active" data-filter="all">All Products</button>
+                <button class="filter-btn" data-filter="Electronics">🔌 Electronics</button>
+                <button class="filter-btn" data-filter="Fashion">👕 Fashion</button>
+                <button class="filter-btn" data-filter="Home">🏠 Home & Kitchen</button>
+                <button class="filter-btn" data-filter="Books">📚 Books</button>
+                <button class="filter-btn" data-filter="Sports">⚽ Sports</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Products Grid -->
+    <section class="products-section">
+        <div class="container">
+            <div id="productsGrid" class="products-grid">
+                <!-- Products will be added here -->
+            </div>
+            <div id="emptyMessage" class="empty-message">
+                <div class="empty-content">
+                    <p style="font-size: 4rem; margin-bottom: 20px;">📦</p>
+                    <p>No products available yet. Check back soon for amazing deals!</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Facebook Share Banner -->
+    <section class="share-banner">
+        <div class="container">
+            <div class="share-content">
+                <h3>📱 Share Amazing Deals</h3>
+                <p>Found something awesome? Share it with your friends on Facebook!</p>
+                <a href="javascript:void(0)" onclick="shareOnFacebook()" class="btn btn-facebook">
+                    Share on Facebook
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <p>&copy; 2026 Best Deals. We are affiliated with Amazon. Your purchases support us.</p>
+                <p style="font-size: 12px; margin-top: 10px;">Affiliate Disclaimer: We may earn a commission on purchases.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Floating Admin Link (hidden by default) -->
+    <div class="floating-admin">
+        <a href="admin.html" title="Admin Dashboard">⚙️</a>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
