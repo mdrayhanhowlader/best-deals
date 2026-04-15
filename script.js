@@ -57,22 +57,33 @@ function createProductCard(product) {
 
     const imageUrl = product.image || 'https://via.placeholder.com/250x200?text=Product+Image';
     const imageHtml = product.image 
-        ? `<img src="${product.image}" alt="${product.name}" onerror="this.src='https://via.placeholder.com/250x200?text=Product+Image'">`
-        : `<div style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; background: linear-gradient(135deg, #FF9500 0%, #FFB84D 100%); font-size: 3rem;">📦</div>`;
+        ? `<img src="${product.image}" alt="${product.name}" onerror="this.src='https://via.placeholder.com/600x400?text=Product+Image'">`
+        : `<div style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; background: linear-gradient(135deg, #FF9500 0%, #FFB84D 100%); font-size: 4rem;">📦</div>`;
+
+    const categoryIcons = {
+        'Electronics': '🔌',
+        'Fashion': '👕',
+        'Home': '🏠',
+        'Books': '📚',
+        'Sports': '⚽',
+        'Other': '📦'
+    };
+
+    const categoryIcon = categoryIcons[product.category] || '📦';
 
     card.innerHTML = `
         <div class="product-image">
             ${imageHtml}
         </div>
         <div class="product-content">
-            <span class="product-category">${product.category}</span>
+            <span class="product-category"><span>${categoryIcon}</span> ${product.category}</span>
             <h3 class="product-name">${escapeHtml(product.name)}</h3>
-            <p class="product-description">${escapeHtml(product.description || 'Great product from Amazon')}</p>
+            <p class="product-description">${escapeHtml(product.description || 'Premium quality product from Amazon')}</p>
             <div class="product-footer">
                 <div class="product-price">$ ${parseFloat(product.price).toFixed(2)}</div>
             </div>
             <a href="${product.link}" target="_blank" rel="noopener noreferrer" class="buy-btn" onclick="trackClick('${product.id}', '${escapeHtml(product.name)}', '${product.category}')">
-                🛒 Buy Now
+                <span>🛒 Buy Now</span>
             </a>
         </div>
     `;

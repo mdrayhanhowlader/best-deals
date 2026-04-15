@@ -49,6 +49,7 @@ function showAdminPanel() {
     // Load data
     loadAdminData();
     setupAdminForm();
+    displayCategories();
     displayAdminProducts();
     updateAdminStats();
 }
@@ -75,6 +76,14 @@ let adminAnalytics = JSON.parse(localStorage.getItem('affiliateAnalytics')) || {
     productClicks: {}
 };
 
+let customCategories = JSON.parse(localStorage.getItem('customCategories')) || [
+    { name: 'Electronics', icon: '🔌' },
+    { name: 'Fashion', icon: '👕' },
+    { name: 'Home', icon: '🏠' },
+    { name: 'Books', icon: '📚' },
+    { name: 'Sports', icon: '⚽' }
+];
+
 // Load admin data
 function loadAdminData() {
     adminProducts = JSON.parse(localStorage.getItem('affiliateProducts')) || [];
@@ -85,10 +94,78 @@ function loadAdminData() {
         categoryClicks: {},
         productClicks: {}
     };
+    customCategories = JSON.parse(localStorage.getItem('customCategories')) || customCategories;
+}
+
+// Add custom category
+function addCustomCategory() {
+    const name = document.getElementById('newCategoryName').value.trim();
+    const icon = document.getElementById('newCategoryIcon').value.trim();
+    
+    if (!name) {
+        alert('⚠️ Please enter a category name');
+        return;
+    }
+    
+    if (customCategories.some(c => c.name.toLowerCase() === name.toLowerCase())) {
+        alert('⚠️ This category already exists');
+        return;
+    }
+    
+    customCategories.push({
+        name: name,
+        icon: icon || '📦'
+    });
+    
+    localStorage.setItem('customCategories', JSON.stringify(customCategories));
+    
+    // Update form options
+    updateCategorySelect();
+    displayCategories();
+    
+    // Clear inputs
+    document.getElementById('newCategoryName').value = '';
+    document.getElementById('newCategoryIcon').value = '';
+    
+    alert('✅ Category added successfully!');
+}
+
+// Delete category
+function deleteCategory(index) {
+    if (confirm('Are you sure you want to delete this category?')) {
+        customCategories.splice(index, 1);
+        localStorage.setItem('customCategories', JSON.stringify(customCategories));
+        updateCategorySelect();
+        displayCategories();
+        alert('✅ Category deleted!');
+    }
+}
+
+// Update category select options
+function updateCategorySelect() {
+    const select = document.getElementById('productCategory');
+    select.innerHTML = customCategories.map(cat => 
+        `<option value="${cat.name}">${cat.icon} ${cat.name}</option>`
+    ).join('');
+}
+
+// Display all categories
+function displayCategories() {
+    const container = document.getElementById('categoriesList');
+    if (!container) return;
+    
+    container.innerHTML = customCategories.map((cat, index) => `
+        <div style="background: white; padding: 15px; border-radius: 10px; border: 2px solid #e0e0e0; text-align: center; position: relative;">
+            <div style="font-size: 2rem; margin-bottom: 10px;">${cat.icon}</div>
+            <div style="font-weight: 700; color: #333; margin-bottom: 5px;">${cat.name}</div>
+            <button onclick="deleteCategory(${index})" style="background: #ff6b6b; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-size: 0.85rem; font-weight: 600;">🗑️ Delete</button>
+        </div>
+    `).join('');
 }
 
 // Setup admin product form
 function setupAdminForm() {
+    updateCategorySelect();
     const form = document.getElementById('productForm');
     if (form) {
         form.addEventListener('submit', (e) => {
@@ -131,20 +208,25 @@ function displayAdminProducts() {
         return;
     }
 
-    container.innerHTML = adminProducts.map(product => `
+    container.innerHTML = adminProducts.map(product => {
+        const category = customCategories.find(c => c.name === product.category);
+        const categoryIcon = category ? category.icon : '📦';
+        
+        return `
         <div class="admin-product-item">
             <div class="admin-product-info">
                 <h4>${escapeHtml(product.name)}</h4>
-                <p><strong>Price:</strong> $ ${parseFloat(product.price).toFixed(2)}</p>
-                <p><strong>Category:</strong> ${product.category}</p>
-                <p><strong>Link:</strong> <a href="${product.link}" target="_blank" style="color: #667eea; text-decoration: none;">View</a></p>
-                <p><strong>Clicks:</strong> ${adminAnalytics.productClicks[product.id] || 0}</p>
+                <p><strong>💰 Price:</strong> $ ${parseFloat(product.price).toFixed(2)}</p>
+                <p><strong>${categoryIcon} Category:</strong> ${product.category}</p>
+                <p><strong>🔗 Link:</strong> <a href="${product.link}" target="_blank" style="color: #667eea; text-decoration: none;">View →</a></p>
+                <p><strong>📊 Clicks:</strong> ${adminAnalytics.productClicks[product.id] || 0}</p>
             </div>
             <div class="admin-product-actions">
                 <button class="admin-btn admin-btn-delete" onclick="adminDeleteProduct(${product.id})">🗑️ Delete</button>
             </div>
         </div>
-    `).join('');
+    `;
+    }).join('');
 }
 
 // Admin delete product
@@ -237,7 +319,7 @@ function addSampleProducts() {
     const samples = [
         {
             id: Date.now() + 1,
-            name: 'Premium Wireless Headphones',
+            name: '🎧 Premium Wireless Headphones',
             price: 89.99,
             category: 'Electronics',
             description: 'High-quality sound with 30-hour battery life and noise cancellation',
@@ -247,42 +329,62 @@ function addSampleProducts() {
         },
         {
             id: Date.now() + 2,
-            name: 'Waterproof Bluetooth Speaker',
+            name: '🔊 Waterproof Bluetooth Speaker',
             price: 49.99,
             category: 'Electronics',
-            description: 'Portable speaker with amazing sound quality',
+            description: 'Portable speaker with 360° surround sound and IPX7 waterproof rating',
             link: 'https://amazon.com/',
             image: 'https://via.placeholder.com/300x300?text=Speaker',
             addedDate: new Date().toISOString()
         },
         {
             id: Date.now() + 3,
-            name: 'Professional Camera Tripod',
+            name: '📹 Professional Camera Tripod',
             price: 34.99,
             category: 'Electronics',
-            description: 'Adjustable tripod for cameras and smartphones',
+            description: 'Adjustable tripod with phone holder for content creators',
             link: 'https://amazon.com/',
             image: 'https://via.placeholder.com/300x300?text=Tripod',
             addedDate: new Date().toISOString()
         },
         {
             id: Date.now() + 4,
-            name: 'Stylish Laptop Backpack',
+            name: '🎒 Stylish Laptop Backpack',
             price: 59.99,
             category: 'Fashion',
-            description: 'Durable and water-resistant design with multiple compartments',
+            description: 'Water-resistant design with USB charging port and multiple compartments',
             link: 'https://amazon.com/',
             image: 'https://via.placeholder.com/300x300?text=Backpack',
             addedDate: new Date().toISOString()
         },
         {
             id: Date.now() + 5,
-            name: 'Smart LED Light Bulbs',
+            name: '💡 Smart LED Light Bulbs',
             price: 19.99,
             category: 'Home',
-            description: '16 million color options, voice controlled, energy efficient',
+            description: 'Alexa compatible, 16M colors, schedule & automation features',
             link: 'https://amazon.com/',
             image: 'https://via.placeholder.com/300x300?text=LED+Bulbs',
+            addedDate: new Date().toISOString()
+        },
+        {
+            id: Date.now() + 6,
+            name: '📖 Fiction Bestseller Bundle',
+            price: 29.99,
+            category: 'Books',
+            description: 'Hardcover collection of 3 bestselling novels',
+            link: 'https://amazon.com/',
+            image: 'https://via.placeholder.com/300x300?text=Books',
+            addedDate: new Date().toISOString()
+        },
+        {
+            id: Date.now() + 7,
+            name: '⚽ Professional Soccer Ball',
+            price: 44.99,
+            category: 'Sports',
+            description: 'FIFA approved, durable synthetic leather construction',
+            link: 'https://amazon.com/',
+            image: 'https://via.placeholder.com/300x300?text=Soccer+Ball',
             addedDate: new Date().toISOString()
         }
     ];
@@ -291,7 +393,7 @@ function addSampleProducts() {
     saveAdminProducts();
     displayAdminProducts();
     updateAdminStats();
-    alert('✅ Sample products added!');
+    alert('✅ 7 sample products added!');
 }
 
 // Escape HTML to prevent XSS
