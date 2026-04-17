@@ -113,7 +113,7 @@ function selectCat(btn) {
 
     btn.classList.add('selected');
     const val = btn.dataset.val;
-    const col = CAT_COLORS[val];
+    const col = getCatColor(val);
     if (col) {
         const icon = btn.querySelector('.cat-opt-icon');
         const name = btn.querySelector('.cat-opt-name');
@@ -155,12 +155,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('addForm').addEventListener('submit', function (e) {
         e.preventDefault();
-        const name  = document.getElementById('pName').value.trim();
-        const price = parseFloat(document.getElementById('pPrice').value);
-        const link  = document.getElementById('pLink').value.trim();
-        const cat   = document.getElementById('pCategory').value;
-        const img   = document.getElementById('pImage').value.trim();
-        const desc  = document.getElementById('pDesc').value.trim();
+        const name      = document.getElementById('pName').value.trim();
+        const price     = parseFloat(document.getElementById('pPrice').value);
+        const link      = document.getElementById('pLink').value.trim();
+        const cat       = document.getElementById('pCategory').value;
+        const img       = document.getElementById('pImage').value.trim();
+        const desc      = document.getElementById('pDesc').value.trim();
+        const badge     = document.getElementById('pBadge').value;
+        const origPrice = badge === 'Sale' ? parseFloat(document.getElementById('pOrigPrice').value) || null : null;
+        const featured  = document.getElementById('pFeatured').checked;
+        const startDate = document.getElementById('pStartDate').value || null;
+        const endDate   = document.getElementById('pEndDate').value || null;
 
         if (!name || !price || !link || !cat) {
             showToast('Please fill in all required fields.', 'err');
@@ -168,12 +173,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const product = {
-            id:      'p_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+            id:        'p_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
             name, price, link,
-            category: cat,
-            image:    img  || '',
-            desc:     desc || '',
-            addedAt:  new Date().toISOString(),
+            category:  cat,
+            image:     img  || '',
+            desc:      desc || '',
+            badge:     badge || '',
+            origPrice: origPrice,
+            featured:  featured,
+            startDate: startDate,
+            endDate:   endDate,
+            addedAt:   new Date().toISOString(),
         };
 
         products.unshift(product);
@@ -187,14 +197,25 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function clearForm() {
-    document.getElementById('pName').value  = '';
-    document.getElementById('pPrice').value = '';
-    document.getElementById('pLink').value  = '';
-    document.getElementById('pImage').value = '';
-    document.getElementById('pDesc').value  = '';
-    const first = document.querySelector('.cat-opt[data-val="Electronics"]');
+    document.getElementById('pName').value      = '';
+    document.getElementById('pPrice').value     = '';
+    document.getElementById('pLink').value      = '';
+    document.getElementById('pImage').value     = '';
+    document.getElementById('pDesc').value      = '';
+    document.getElementById('pBadge').value     = '';
+    document.getElementById('pOrigPrice').value = '';
+    document.getElementById('pFeatured').checked = false;
+    document.getElementById('pStartDate').value = '';
+    document.getElementById('pEndDate').value   = '';
+    toggleOriginalPrice('');
+    const first = document.querySelector('.cat-opt');
     if (first) selectCat(first);
     previewImg('');
+}
+
+function toggleOriginalPrice(val) {
+    const wrap = document.getElementById('origPriceWrap');
+    if (wrap) wrap.style.display = val === 'Sale' ? '' : 'none';
 }
 
 function showFormStatus() {
@@ -238,13 +259,26 @@ function renderProductsGrid() {
                    onerror="this.parentElement.classList.add('pc-img-ph');this.remove()">`
             : `<div class="pc-img-ph"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></div>`;
 
+        // Badge HTML
+        const badgeColors = { 'Hot':'#EF4444','New':'#10B981','Best Seller':'#F59E0B','Sale':'#EF4444' };
+        const badgeHtml   = p.badge
+            ? `<span style="position:absolute;top:10px;right:10px;z-index:2;padding:2px 8px;border-radius:100px;font-size:.6rem;font-weight:800;color:#fff;background:${badgeColors[p.badge]||'#6366F1'}">${escH(p.badge)}</span>`
+            : '';
+        const featuredHtml = p.featured
+            ? `<span style="position:absolute;bottom:8px;right:8px;z-index:2;font-size:.72rem" title="Featured">⭐</span>`
+            : '';
+        const origPriceHtml = (p.badge === 'Sale' && p.origPrice)
+            ? `<span style="font-size:.7rem;color:var(--muted);text-decoration:line-through;margin-left:4px">$${parseFloat(p.origPrice).toFixed(2)}</span>`
+            : '';
+
         const card = document.createElement('div');
         card.className = 'pcard';
         card.style.animationDelay = `${idx * 0.04}s`;
         card.innerHTML = `
-            <div class="pc-img-wrap">
+            <div class="pc-img-wrap" style="position:relative">
                 ${imgHtml}
                 <span class="pc-cat-tag" style="background:${col.bg}">${escH(p.category)}</span>
+                ${badgeHtml}${featuredHtml}
                 <div class="pc-actions">
                     <a href="${escH(p.link)}" target="_blank" rel="noopener" class="pc-act-btn pc-act-link" title="Open link">
                         <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
@@ -257,7 +291,10 @@ function renderProductsGrid() {
             <div class="pc-body">
                 <div class="pc-name">${escH(p.name)}</div>
                 <div class="pc-meta">
-                    <div class="pc-price">$${parseFloat(p.price).toFixed(2)}</div>
+                    <div style="display:flex;align-items:center;gap:4px">
+                        <div class="pc-price">$${parseFloat(p.price).toFixed(2)}</div>
+                        ${origPriceHtml}
+                    </div>
                     <div class="pc-clicks">
                         <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
                         ${clicks} click${clicks !== 1 ? 's' : ''}
@@ -634,23 +671,33 @@ function resetToDefaultCategories() {
 // ══════════════════════════════════════════════════
 function addSampleProducts() {
     const samples = [
-        { name: 'Sony WH-1000XM5 Headphones',      price: 279.99, category: 'Electronics', link: 'https://amazon.com', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400', desc: 'Industry-leading noise canceling.' },
-        { name: 'Apple AirPods Pro (2nd Gen)',       price: 199.00, category: 'Electronics', link: 'https://amazon.com', image: 'https://images.unsplash.com/photo-1606220945770-b5b6c2c55bf1?w=400', desc: 'Adaptive audio, ANC.' },
-        { name: 'Nike Air Max 270 Sneakers',         price: 120.00, category: 'Fashion',     link: 'https://amazon.com', image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400', desc: 'Max air cushioning.' },
-        { name: 'Instant Pot Duo 7-in-1',            price: 79.95,  category: 'Home',        link: 'https://amazon.com', image: 'https://images.unsplash.com/photo-1585515320310-259814833e62?w=400', desc: 'Multi-use pressure cooker.' },
-        { name: 'Atomic Habits — James Clear',       price: 14.99,  category: 'Books',       link: 'https://amazon.com', image: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400', desc: 'Build good habits.' },
-        { name: 'Fitbit Charge 6 Fitness Tracker',   price: 159.95, category: 'Sports',      link: 'https://amazon.com', image: 'https://images.unsplash.com/photo-1575311373937-040b8e1fd5b6?w=400', desc: 'GPS + heart rate.' },
-        { name: 'Samsung 4K Smart TV 55"',           price: 549.99, category: 'Electronics', link: 'https://amazon.com', image: 'https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=400', desc: 'Crystal-clear 4K UHD.' },
-        { name: "Levi's Classic 501 Jeans",          price: 59.50,  category: 'Fashion',     link: 'https://amazon.com', image: 'https://images.unsplash.com/photo-1542272454315-4c01d7abdf4a?w=400', desc: 'Iconic straight fit.' },
+        { name: 'Sony WH-1000XM5 Headphones',      price: 279.99, origPrice: 349.99, badge: 'Sale',        featured: true,  category: 'Electronics', link: 'https://amazon.com', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400', desc: 'Industry-leading noise canceling.' },
+        { name: 'Apple AirPods Pro (2nd Gen)',       price: 199.00, origPrice: null,   badge: 'Hot',         featured: false, category: 'Electronics', link: 'https://amazon.com', image: 'https://images.unsplash.com/photo-1606220945770-b5b6c2c55bf1?w=400', desc: 'Adaptive audio, ANC.' },
+        { name: 'Nike Air Max 270 Sneakers',         price: 120.00, origPrice: null,   badge: 'Best Seller', featured: false, category: 'Fashion',     link: 'https://amazon.com', image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400', desc: 'Max air cushioning.' },
+        { name: 'Instant Pot Duo 7-in-1',            price: 79.95,  origPrice: 99.95,  badge: 'Sale',        featured: false, category: 'Home',        link: 'https://amazon.com', image: 'https://images.unsplash.com/photo-1585515320310-259814833e62?w=400', desc: 'Multi-use pressure cooker.' },
+        { name: 'Atomic Habits — James Clear',       price: 14.99,  origPrice: null,   badge: 'New',         featured: false, category: 'Books',       link: 'https://amazon.com', image: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400', desc: 'Build good habits.' },
+        { name: 'Fitbit Charge 6 Fitness Tracker',   price: 159.95, origPrice: null,   badge: 'Hot',         featured: false, category: 'Sports',      link: 'https://amazon.com', image: 'https://images.unsplash.com/photo-1575311373937-040b8e1fd5b6?w=400', desc: 'GPS + heart rate.' },
+        { name: 'Samsung 4K Smart TV 55"',           price: 549.99, origPrice: 699.99, badge: 'Sale',        featured: true,  category: 'Electronics', link: 'https://amazon.com', image: 'https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=400', desc: 'Crystal-clear 4K UHD.' },
+        { name: "Levi's Classic 501 Jeans",          price: 59.50,  origPrice: null,   badge: '',            featured: false, category: 'Fashion',     link: 'https://amazon.com', image: 'https://images.unsplash.com/photo-1542272454315-4c01d7abdf4a?w=400', desc: 'Iconic straight fit.' },
     ];
 
     let added = 0;
     samples.forEach(s => {
         if (!products.some(p => p.name === s.name)) {
             products.unshift({
-                ...s,
-                id:      'p_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
-                addedAt: new Date().toISOString(),
+                id:        'p_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+                name:      s.name,
+                price:     s.price,
+                link:      s.link,
+                category:  s.category,
+                image:     s.image,
+                desc:      s.desc,
+                badge:     s.badge     || '',
+                origPrice: s.origPrice || null,
+                featured:  s.featured  || false,
+                startDate: null,
+                endDate:   null,
+                addedAt:   new Date().toISOString(),
             });
             added++;
         }
@@ -664,6 +711,94 @@ function addSampleProducts() {
     } else {
         showToast('Sample products already exist.', '');
     }
+}
+
+// ══════════════════════════════════════════════════
+//  CSV IMPORT
+// ══════════════════════════════════════════════════
+function importCSV() {
+    document.getElementById('csvFile').click();
+}
+
+function downloadCSVTemplate() {
+    const header = 'name,price,link,category,image,description,badge,originalPrice,featured';
+    const example = '"Sony WH-1000XM5 Headphones",279.99,https://amazon.com/dp/example,Electronics,https://example.com/img.jpg,"Great noise-canceling headphones",Hot,,false';
+    const blob = new Blob([header + '\n' + example], { type: 'text/csv' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = 'bestdeals-import-template.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('CSV template downloaded!', 'ok');
+}
+
+function handleCSVImport(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+        try {
+            const rows = parseCSV(ev.target.result);
+            if (rows.length === 0) { showToast('CSV is empty or invalid.', 'err'); return; }
+            let added = 0;
+            rows.forEach(row => {
+                if (!row.name || !row.price || !row.link) return;
+                products.unshift({
+                    id:        'p_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+                    name:      row.name.trim(),
+                    price:     parseFloat(row.price) || 0,
+                    link:      row.link.trim(),
+                    category:  (row.category || 'Electronics').trim(),
+                    image:     (row.image || '').trim(),
+                    desc:      (row.description || '').trim(),
+                    badge:     (row.badge || '').trim(),
+                    origPrice: row.originalPrice ? parseFloat(row.originalPrice) : null,
+                    featured:  row.featured === 'true' || row.featured === '1',
+                    startDate: null,
+                    endDate:   null,
+                    addedAt:   new Date().toISOString(),
+                });
+                added++;
+            });
+            if (added > 0) {
+                saveProducts();
+                renderProductsGrid();
+                updateDashboardStats();
+                showToast(`${added} product${added > 1 ? 's' : ''} imported from CSV!`, 'ok');
+            } else {
+                showToast('No valid rows found in CSV.', 'err');
+            }
+        } catch (err) {
+            showToast('Failed to parse CSV file.', 'err');
+        }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+}
+
+function parseCSV(text) {
+    const lines = text.trim().split('\n');
+    if (lines.length < 2) return [];
+    const headers = splitCSVRow(lines[0]).map(h => h.trim().toLowerCase());
+    return lines.slice(1).filter(l => l.trim()).map(line => {
+        const vals = splitCSVRow(line);
+        const obj  = {};
+        headers.forEach((h, i) => { obj[h] = (vals[i] || '').trim().replace(/^"|"$/g, ''); });
+        return obj;
+    });
+}
+
+function splitCSVRow(row) {
+    const result = [];
+    let cur = '', inQ = false;
+    for (let i = 0; i < row.length; i++) {
+        if (row[i] === '"') { inQ = !inQ; }
+        else if (row[i] === ',' && !inQ) { result.push(cur); cur = ''; }
+        else { cur += row[i]; }
+    }
+    result.push(cur);
+    return result;
 }
 
 // ══════════════════════════════════════════════════

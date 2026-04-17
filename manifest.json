@@ -1,0 +1,14 @@
+{
+  "name": "BestDeals – Amazon Affiliate",
+  "short_name": "BestDeals",
+  "description": "Curated Amazon deals at the best prices",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#F7F5F2",
+  "theme_color": "#6366F1",
+  "orientation": "portrait-primary",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

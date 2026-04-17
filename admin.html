@@ -728,6 +728,51 @@ table.log-table{width:100%;border-collapse:collapse;font-size:.82rem}
 
             </div>
 
+              <!-- Badge -->
+              <div class="fg">
+                <label class="fg-label"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>Deal Badge</label>
+                <div class="fg-wrap">
+                  <svg class="fg-icon" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+                  <select class="fg-select" id="pBadge" onchange="toggleOriginalPrice(this.value)">
+                    <option value="">No Badge</option>
+                    <option value="Hot">🔥 Hot Deal</option>
+                    <option value="New">✨ New</option>
+                    <option value="Best Seller">⭐ Best Seller</option>
+                    <option value="Sale">% Sale</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Original Price (visible only when Sale) -->
+              <div class="fg" id="origPriceWrap" style="display:none">
+                <label class="fg-label"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>Original Price <span style="color:var(--muted);font-weight:400">(before discount)</span></label>
+                <div class="fg-wrap">
+                  <svg class="fg-icon" viewBox="0 0 24 24" fill="none" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+                  <input class="fg-input" type="number" id="pOrigPrice" placeholder="99.99" step="0.01" min="0">
+                </div>
+              </div>
+
+              <!-- Featured -->
+              <div class="fg">
+                <label class="fg-label"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Featured</label>
+                <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:10px 14px;border:1.5px solid var(--border);border-radius:var(--r);background:#FAFAFA;transition:var(--trans)">
+                  <input type="checkbox" id="pFeatured" style="width:16px;height:16px;accent-color:var(--accent);cursor:pointer">
+                  <span style="font-size:.85rem;color:var(--dark2);font-weight:500">Pin to top of homepage</span>
+                </label>
+              </div>
+
+              <!-- Scheduling -->
+              <div class="fg">
+                <label class="fg-label"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Start Date <span class="fg-hint" style="margin-left:4px">(optional)</span></label>
+                <div class="fg-wrap"><input class="fg-input" type="date" id="pStartDate" style="padding-left:14px"></div>
+              </div>
+              <div class="fg">
+                <label class="fg-label"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>End Date <span class="fg-hint" style="margin-left:4px">(optional)</span></label>
+                <div class="fg-wrap"><input class="fg-input" type="date" id="pEndDate" style="padding-left:14px"></div>
+              </div>
+
+            </div>
+
             <div class="submit-row">
               <button type="submit" class="btn-add" id="addBtn">
                 <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -768,6 +813,30 @@ table.log-table{width:100%;border-collapse:collapse;font-size:.82rem}
       <div class="page-header">
         <div class="page-title">Analytics</div>
         <div class="page-sub">Detailed click tracking and performance insights</div>
+      </div>
+
+      <!-- CSV Import -->
+      <div class="form-outer" style="margin-bottom:24px">
+        <div class="form-outer-header" style="background:linear-gradient(135deg,#06B6D4,#0E7490)">
+          <div class="foh-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+          <div class="foh-text">
+            <h3>CSV Bulk Import</h3>
+            <p>Import multiple products at once from a CSV file</p>
+          </div>
+        </div>
+        <div class="form-body">
+          <p style="font-size:.82rem;color:var(--muted);margin-bottom:16px">Required columns: <code style="background:#F3F4F6;padding:2px 6px;border-radius:4px;font-size:.78rem">name, price, link, category</code> &nbsp; Optional: <code style="background:#F3F4F6;padding:2px 6px;border-radius:4px;font-size:.78rem">image, description, badge, originalPrice, featured</code></p>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="action-btn" onclick="downloadCSVTemplate()">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Download Template
+            </button>
+            <button class="action-btn success" onclick="importCSV()">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              Import CSV
+            </button>
+          </div>
+        </div>
       </div>
 
       <div class="analytics-actions">
@@ -880,6 +949,7 @@ table.log-table{width:100%;border-collapse:collapse;font-size:.82rem}
 </div><!-- /admin-panel -->
 
 <input type="file" id="importFile" accept=".json" style="display:none" onchange="handleImport(event)">
+<input type="file" id="csvFile" accept=".csv,text/csv" style="display:none" onchange="handleCSVImport(event)">
 <script src="admin.js"></script>
 </body>
 </html>
